@@ -132,6 +132,23 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 .tl-item.now .tl-now { display: inline-block; }
 .tl-item p { margin: 0; font-size: 13px; color: var(--text); line-height: 1.5; }
 
+/* Cadastro */
+.lead-form { display: grid; gap: 16px; max-width: 560px; border: 1px solid var(--line); background: var(--graphite); padding: 22px 20px; position: relative; }
+.lead-form::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: var(--orange); }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); }
+.field input {
+  width: 100%; background: var(--black); color: var(--white); border: 1px solid var(--line);
+  padding: 13px 14px; font: 16px/1.3 var(--body); border-radius: 0;
+}
+.field input:focus { outline: none; border-color: var(--orange); }
+.field input[aria-invalid="true"] { border-color: #FF4D4D; }
+.consent { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 13px; color: var(--text); line-height: 1.5; cursor: pointer; }
+.consent input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--orange); }
+.form-error { color: #FF6B6B; font-size: 13px; margin: 0; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
 /* Quiz */
 .quiz { padding-block: 32px 56px; display: grid; gap: 28px; }
 .progress { display: grid; gap: 10px; }
@@ -211,6 +228,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
 @media (max-width: 640px) {
   .tl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fields { grid-template-columns: minmax(0, 1fr); }
+  .lead-form { padding: 20px 16px; }
   .facts { grid-template-columns: minmax(0, 1fr); }
   .radar-item { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .mini span { text-align: left; }
@@ -245,10 +264,28 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
       <div class="eyebrow">Diagnóstico para advogados tributaristas</div>
       <h1>A reforma abriu o mercado. <span class="accent">Onde você entra?</span></h1>
       <p class="lead">Responda <strong>9 perguntas rápidas</strong> sobre a sua atuação e a sua carteira. O Radar cruza o seu perfil com as frentes que a Reforma Tributária criou e mostra <strong>onde estão os seus próximos contratos</strong>, com o que vender, como cobrar e por onde começar.</p>
-      <div class="ctas">
-        <button class="btn btn-primary" id="start" type="button">Começar o diagnóstico</button>
-        <span class="meta">Cerca de 2 minutos · nenhuma informação é enviada</span>
-      </div>
+      <form class="lead-form" id="lead-form" novalidate>
+        <div class="fields">
+          <div class="field">
+            <label for="lead-name">Nome</label>
+            <input id="lead-name" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" required>
+          </div>
+          <div class="field">
+            <label for="lead-email">E-mail</label>
+            <input id="lead-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@escritorio.com.br" required>
+          </div>
+        </div>
+        <div class="hp" aria-hidden="true"><input id="lead-hp" name="_honey" type="text" tabindex="-1" autocomplete="off"></div>
+        <label class="consent" for="lead-consent">
+          <input id="lead-consent" type="checkbox" required>
+          <span>Autorizo a TaxNowBR a usar meu nome e e-mail para enviar conteúdos sobre a Reforma Tributária. Posso pedir a exclusão dos meus dados a qualquer momento.</span>
+        </label>
+        <p class="form-error" id="lead-error" role="alert" hidden></p>
+        <div class="ctas">
+          <button class="btn btn-primary" id="start" type="submit">Começar o diagnóstico</button>
+          <span class="meta">Cerca de 2 minutos</span>
+        </div>
+      </form>
       <div class="timeline">
         <div class="timeline-head">A janela da transição</div>
         <div class="tl" id="tl">
@@ -627,7 +664,56 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   $("next").addEventListener("click", next);
   $("back").addEventListener("click", function () { if (step > 0) { step--; renderStep(); } });
-  $("start").addEventListener("click", function () { step = 0; show("quiz"); renderStep(); });
+  // ---------- Cadastro (nome e e-mail enviados por e-mail via FormSubmit) ----------
+  var LEAD_ENDPOINT = "https://formsubmit.co/ajax/bdeluiz@venturalaw.com.br";
+  var lead = { nome: "", email: "" };
+
+  try {
+    var saved = JSON.parse(localStorage.getItem("taxnow-radar-lead") || "null");
+    if (saved) { $("lead-name").value = saved.nome || ""; $("lead-email").value = saved.email || ""; }
+  } catch (err) {}
+
+  function sendLead(data) {
+    try {
+      fetch(LEAD_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          Nome: data.nome,
+          "E-mail": data.email,
+          "Data e hora": new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+          _subject: "Novo cadastro no TaxNow Radar: " + data.nome,
+          _replyto: data.email,
+          _template: "table",
+          _honey: $("lead-hp").value
+        }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (err) {}
+  }
+
+  $("lead-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var nameEl = $("lead-name"), emailEl = $("lead-email");
+    var nome = nameEl.value.trim().replace(/\s+/g, " ");
+    var email = emailEl.value.trim();
+    var nameOk = nome.length >= 2;
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+    nameEl.setAttribute("aria-invalid", String(!nameOk));
+    emailEl.setAttribute("aria-invalid", String(!emailOk));
+    var msg = !nameOk ? "Informe o seu nome para continuar." :
+      !emailOk ? "Confira o e-mail: ele precisa estar no formato nome@dominio.com.br." :
+      !$("lead-consent").checked ? "Marque a autorização de uso dos dados para continuar." : "";
+    $("lead-error").textContent = msg;
+    $("lead-error").hidden = !msg;
+    if (msg) { (!nameOk ? nameEl : !emailOk ? emailEl : $("lead-consent")).focus(); return; }
+
+    var isNew = nome !== lead.nome || email !== lead.email;
+    lead = { nome: nome, email: email };
+    try { localStorage.setItem("taxnow-radar-lead", JSON.stringify(lead)); } catch (err) {}
+    if (isNew) sendLead(lead);
+    step = 0; show("quiz"); renderStep();
+  });
   $("restart-quiz").addEventListener("click", function () { answers = {}; step = 0; show("intro"); });
 
   document.addEventListener("keydown", function (e) {
@@ -691,7 +777,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
     var html = '<div class="r-head">' +
       '<div class="eyebrow">Seu radar</div>' +
-      '<h2>Suas <span class="accent">3 frentes prioritárias</span> na Reforma Tributária</h2>' +
+      "<h2>" + (lead.nome ? esc(lead.nome.split(" ")[0]) + ", estas são as suas" : "Suas") + ' <span class="accent">3 frentes prioritárias</span> na Reforma Tributária</h2>' +
       '<p class="lead">Ordenadas pela aderência ao perfil que você descreveu. Comece pela primeira: é onde o seu repertório atual já encontra demanda.</p>' +
       '<div class="profile">' + tags.map(function (t) { return '<span class="chip">' + esc(t) + "</span>"; }).join("") + "</div></div>";
 
