@@ -215,6 +215,16 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 .mini span { font-family: var(--display); font-size: 13px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
 .mini .bar i { transition: none; }
 
+.locked {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px;
+  border: 1px dashed var(--line); padding: 12px 14px; text-decoration: none;
+  color: var(--mid); font-size: 13px; transition: border-color .2s, color .2s;
+}
+.locked span::before { content: "🔒︎ "; }
+.locked b { font-family: var(--display); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); white-space: nowrap; }
+.locked:hover { border-color: var(--orange); color: var(--text); }
+.more { margin: 0; color: var(--text); font-size: 15px; }
+.more strong { color: var(--white); font-weight: 600; }
 .club { border: 1px solid var(--orange); padding: 28px 24px; display: grid; gap: 16px; background: var(--orange-wash); }
 .club .ctas, .r-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .copied { font-size: 13px; color: var(--orange); font-family: var(--display); align-self: center; }
@@ -263,7 +273,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     <section class="intro" id="view-intro">
       <div class="eyebrow">Diagnóstico para advogados tributaristas</div>
       <h1>A reforma abriu o mercado. <span class="accent">Onde você entra?</span></h1>
-      <p class="lead">Responda <strong>9 perguntas rápidas</strong> sobre a sua atuação e a sua carteira. O Radar cruza o seu perfil com as frentes que a Reforma Tributária criou e mostra <strong>onde estão os seus próximos contratos</strong>, com o que vender, como cobrar e por onde começar.</p>
+      <p class="lead">Responda <strong>9 perguntas rápidas</strong> sobre a sua atuação e a sua carteira. O Radar cruza o seu perfil com as frentes que a Reforma Tributária criou e mostra <strong>onde estão as suas maiores oportunidades</strong>.</p>
       <form class="lead-form" id="lead-form" novalidate>
         <div class="fields">
           <div class="field">
@@ -417,165 +427,75 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   // ---------- Frentes de atuação ----------
   var FRONTS = [
     { id: "contratos", title: "Revisão de contratos de longo prazo",
-      desc: "Contratos assinados hoje vão atravessar a CBS plena em 2027 e a troca de ICMS/ISS por IBS até 2033. Cláusulas de preço, repasse de tributos, gross-up e reequilíbrio escritas para PIS/Cofins/ICMS viram fonte de conflito.",
-      offer: "Auditoria da carteira de contratos do cliente, aditivos padronizados e cláusula-modelo para os novos contratos.",
-      fee: "Projeto fechado por lote de contratos, com fee mensal para novos instrumentos.",
-      when: "Agora. Cada contrato renovado sem cláusula de transição é um litígio contratado.",
-      step: "Peça aos seus 5 maiores clientes a lista de contratos com vigência além de 2027 e ofereça um diagnóstico das cláusulas tributárias.",
-      pitch: "“Seus contratos foram escritos para um sistema que acaba em 2033. Vamos ver quem paga a conta da transição.”",
+      hint: "Seus clientes têm contratos que vão atravessar toda a transição. Há demanda clara nessa frente, e quem chega primeiro define as regras do jogo.",
       w: { atuacao: { consultivo: 3, ambos: 2, inicio: 1 }, setores: { imobiliario: 3, industria: 2, servicos: 2, publico: 2, tech: 1, comercio: 1 }, regime: { real: 1, presumido: 1, misto: 1 }, comp: { contratos: 4 }, objetivo: { ticket: 2, recorrencia: 1 } } },
 
     { id: "impacto", title: "Diagnóstico de impacto e simulação de carga",
-      desc: "Estudo operação por operação de como ficam carga, preço, margem e caixa com CBS/IBS, crédito financeiro amplo e split payment. Empresas do Lucro Presumido que prestam serviços estão entre as mais afetadas.",
-      offer: "Relatório de impacto com simulação de cenários e apresentação para sócios e diretoria.",
-      fee: "Projeto fechado, com upsell natural para acompanhamento da implantação.",
-      when: "2026 é o ano-teste. Em 2027 a CBS entra cheia e quem não simulou vai precificar no escuro.",
-      step: "Monte um modelo de diagnóstico para um setor que você conhece bem e feche um cliente-piloto em troca de um case.",
-      pitch: "“Quanto a reforma vai custar, ou economizar, para a sua empresa em 2027? Eu te mostro em números.”",
+      hint: "As empresas vão precisar entender quanto a Reforma muda em preço, margem e caixa. Seu perfil reúne o que é preciso para conduzir essa conversa.",
       w: { atuacao: { consultivo: 3, ambos: 2 }, setores: { servicos: 3, comercio: 2, industria: 2, saude: 2, tech: 2 }, regime: { presumido: 3, real: 2, misto: 2 }, indiretos: { media: 1, alta: 2 }, reforma: { inter: 1, avanc: 2 }, comp: { contabil: 3, dados: 2 }, objetivo: { ticket: 2 }, parceiros: { forte: 1 } } },
 
     { id: "simples", title: "Simples Nacional: ficar, sair ou ir para o híbrido",
-      desc: "A partir de 2027 a empresa do Simples pode recolher IBS e CBS pelo regime regular para transferir crédito integral ao cliente empresarial. Quem vende para empresas e não revisar a opção perde competitividade.",
-      offer: "Parecer de opção de regime com simulação e revisão periódica da escolha.",
-      fee: "Ticket menor e oferta padronizada, ideal para vender em pacotes por meio de contadores.",
-      when: "A opção já produz efeitos em 2027 e é revista periodicamente. O tema está na mesa dos clientes agora.",
-      step: "Proponha a dois escritórios de contabilidade um encontro com os clientes do Simples que vendem para outras empresas.",
-      pitch: "“Seu cliente vai começar a comparar o crédito que você gera. Vamos decidir se vale sair do Simples para o IBS/CBS.”",
+      hint: "Muitas empresas do Simples terão uma decisão importante a tomar no sistema novo. É uma frente com potencial de escala.",
       w: { atuacao: { inicio: 2, consultivo: 1, ambos: 1 }, porte: { solo: 1, peq: 1 }, setores: { servicos: 2, comercio: 2, tech: 2, industria: 1 }, regime: { simples: 4, misto: 2 }, reforma: { inicio: 1 }, comp: { contabil: 2 }, objetivo: { volume: 4, recorrencia: 1 }, parceiros: { forte: 3, fraca: 2 } } },
 
     { id: "creditos", title: "Recuperação e monetização de créditos acumulados",
-      desc: "Saldos de PIS/Cofins e de ICMS precisam ser levantados antes da extinção dos tributos. A Reforma Tributária permite usar o saldo de PIS/Cofins contra a CBS e prevê a homologação e compensação do saldo credor de ICMS ao longo de anos.",
-      offer: "Levantamento de créditos, pedidos de ressarcimento e compensação e estratégia de homologação do saldo de ICMS.",
-      fee: "Fixo de entrada com êxito sobre o crédito efetivamente monetizado.",
-      when: "Urgente para PIS/Cofins, extintos em 2027. Para ICMS, o relógio corre até 2032.",
-      step: "Aplique um checklist de créditos não aproveitados nos clientes do Lucro Real, em especial exportadores e indústrias.",
-      pitch: "“Você tem créditos que vão virar pó se não forem organizados antes de PIS, Cofins e ICMS acabarem.”",
+      hint: "Há valores parados nas empresas que precisam ser tratados antes do fim dos tributos atuais. É uma frente com potencial de ticket alto.",
       w: { atuacao: { ambos: 2, contencioso: 1, consultivo: 1 }, setores: { industria: 3, agro: 3, comercio: 2 }, regime: { real: 4, misto: 1 }, indiretos: { alta: 4, media: 2 }, comp: { contabil: 2, dados: 1 }, objetivo: { ticket: 3 } } },
 
     { id: "contencioso", title: "Contencioso do IBS e da CBS",
-      desc: "Nasce um novo contencioso: o Comitê Gestor do IBS de um lado, a Receita Federal na CBS do outro. Glosa de crédito, split payment, base de cálculo e enquadramento em reduções vão gerar autuações e as primeiras grandes teses.",
-      offer: "Defesa em autos de infração, consultas formais, mandados de segurança e acompanhamento de teses nos tribunais.",
-      fee: "Por caso, com êxito, ou retainer para carteira de defesas.",
-      when: "As autuações começam com a CBS plena a partir de 2027. Quem dominar o rito primeiro vira referência.",
-      step: "Estude o processo administrativo do IBS e da CBS e publique um guia prático das primeiras discussões previsíveis.",
-      pitch: "“O primeiro auto de infração de IBS/CBS do seu cliente não pode ser também a primeira vez do advogado dele.”",
+      hint: "O sistema novo vai gerar um contencioso novo. Quem se posicionar cedo tende a virar referência.",
       w: { atuacao: { contencioso: 4, ambos: 3 }, porte: { med: 1, grande: 2 }, setores: { industria: 1, comercio: 1, financeiro: 1 }, regime: { real: 2 }, indiretos: { alta: 2, media: 1 }, reforma: { avanc: 3, inter: 1 }, comp: { processo: 3 }, objetivo: { autoridade: 1, ticket: 1 } } },
 
     { id: "reducoes", title: "Enquadramento em reduções e regimes diferenciados",
-      desc: "Redução de 60% para saúde, educação, dispositivos médicos e insumos agropecuários, 30% para profissões intelectuais regulamentadas, alíquota zero para a cesta básica. Classificação errada é perda de competitividade ou autuação certa.",
-      offer: "Parecer de enquadramento por NCM/NBS, consulta formal e defesa do enquadramento.",
-      fee: "Parecer fechado e retainer para novos produtos e serviços.",
-      when: "Precisa estar resolvido antes da CBS plena em 2027, porque a redução define o preço de venda.",
-      step: "Liste os clientes de saúde, educação, agro e profissões regulamentadas e ofereça uma revisão rápida de enquadramento.",
-      pitch: "“A lei te dá até 60% de redução. Vamos garantir que você esteja dentro e consiga provar isso.”",
+      hint: "A Reforma criou tratamentos diferenciados para setores presentes na sua carteira. Saber posicionar o cliente vale muito.",
       w: { atuacao: { consultivo: 2, ambos: 2 }, setores: { saude: 4, agro: 3, servicos: 3, comercio: 1, industria: 1 }, indiretos: { media: 1, alta: 1 }, reforma: { inter: 1, avanc: 2 }, objetivo: { ticket: 1, recorrencia: 1 } } },
 
     { id: "imobiliario", title: "Operações imobiliárias no regime específico",
-      desc: "Venda, locação, incorporação e loteamento têm regras próprias: redutor de ajuste, redutor social, redução de 50% na alienação e de 70% na locação. Pessoa física com muitos imóveis alugados pode passar a ser contribuinte.",
-      offer: "Estruturação de incorporações, cálculo do redutor de ajuste e revisão de contratos de venda e locação.",
-      fee: "Projeto por empreendimento ou fee mensal para incorporadoras e administradoras.",
-      when: "Empreendimentos lançados agora serão vendidos já sob IBS/CBS.",
-      step: "Procure incorporadoras e imobiliárias da sua região com uma simulação do redutor de ajuste num empreendimento real.",
-      pitch: "“O seu próximo lançamento vai ser vendido no sistema novo. A margem dele depende de como você estrutura hoje.”",
+      hint: "O setor imobiliário ganhou regras próprias, e poucos profissionais dominam esse regime.",
       w: { atuacao: { consultivo: 2, ambos: 1 }, setores: { imobiliario: 5, pf: 2, financeiro: 1 }, comp: { patrimonial: 2, contratos: 2 }, objetivo: { ticket: 2 } } },
 
     { id: "patrimonial", title: "Holdings e planejamento patrimonial",
-      desc: "A reforma tornou o ITCMD obrigatoriamente progressivo, abriu caminho para a cobrança sobre bens no exterior e mudou a tributação da locação por pessoa física e por holdings. Estruturas montadas nos últimos anos precisam ser revistas.",
-      offer: "Revisão de holdings existentes, simulação pessoa física × holding e planejamento sucessório.",
-      fee: "Projeto fechado de alto valor, com manutenção anual.",
-      when: "Antes que as leis estaduais de ITCMD progressivo elevem o custo de doar e reorganizar.",
-      step: "Revise as holdings que você já conhece e envie a cada família um alerta sobre ITCMD e locação.",
-      pitch: "“A holding que fazia sentido em 2020 pode ter virado custo. Vamos refazer a conta com as regras novas.”",
+      hint: "Famílias com patrimônio vão precisar rever estruturas montadas no sistema antigo.",
       w: { atuacao: { consultivo: 2, ambos: 1 }, porte: { solo: 1 }, setores: { pf: 5, imobiliario: 2, agro: 1 }, comp: { patrimonial: 4, contratos: 1 }, objetivo: { ticket: 2, recorrencia: 1 } } },
 
     { id: "seletivo", title: "Imposto Seletivo: enquadramento e defesa",
-      desc: "A partir de 2027 o IS incide sobre veículos, embarcações e aeronaves, fumígenos, bebidas alcoólicas e açucaradas, bens minerais e apostas. Base de cálculo, alíquotas e limites constitucionais estão em aberto.",
-      offer: "Parecer de incidência, teses de inconstitucionalidade e estruturação da cadeia para reduzir a exposição.",
-      fee: "Por projeto ou tese, com êxito.",
-      when: "As leis de alíquota e os primeiros fatos geradores chegam em 2027.",
-      step: "Mapeie quais clientes produzem ou vendem itens do IS e envie uma nota técnica com os pontos de discussão.",
-      pitch: "“O Imposto Seletivo vai atingir o seu produto em 2027. Ainda dá para discutir quanto e como.”",
+      hint: "O Imposto Seletivo atinge produtos específicos e ainda deixa muito espaço para discussão.",
       w: { atuacao: { contencioso: 2, ambos: 2, consultivo: 1 }, porte: { med: 1, grande: 2 }, setores: { industria: 4, comercio: 1, agro: 1 }, indiretos: { alta: 2 }, comp: { processo: 2 }, objetivo: { ticket: 2, autoridade: 1 } } },
 
     { id: "compliance", title: "Split payment e compliance da transição",
-      desc: "O recolhimento passa a acontecer na liquidação financeira, as notas ganharam campos de IBS e CBS e a apuração será assistida. Faturamento, cadastro de produtos, ERP e caixa precisam ser redesenhados.",
-      offer: "Projeto de adequação com o time de TI e o ERP, manual de compliance e monitoramento mensal.",
-      fee: "Projeto de implantação e fee mensal de compliance.",
-      when: "Os campos novos já estão nas notas em 2026. O split payment muda o caixa assim que for implantado.",
-      step: "Faça parceria com um integrador de ERP ou uma empresa de tax tech e ofereçam juntos um pacote de adequação.",
-      pitch: "“Com o split payment o imposto sai do seu caixa no momento do pagamento. Sua operação está pronta para isso?”",
+      hint: "As empresas terão de adaptar processos e sistemas ao novo modelo de recolhimento. É um caminho natural para receita recorrente.",
       w: { atuacao: { consultivo: 2, ambos: 1 }, porte: { med: 1, grande: 1 }, setores: { comercio: 3, tech: 3, financeiro: 2, servicos: 1 }, regime: { real: 1, presumido: 1 }, comp: { dados: 4, contabil: 2 }, objetivo: { recorrencia: 3 }, parceiros: { forte: 1 } } },
 
     { id: "incentivos", title: "Benefícios de ICMS, guerra fiscal e logística",
-      desc: "Os incentivos de ICMS acabam com a transição e o Fundo de Compensação de Benefícios Fiscais indeniza titulares de benefícios onerosos. Com a tributação no destino, plantas e centros de distribuição montados por causa de incentivo precisam ser reavaliados.",
-      offer: "Habilitação no Fundo de Compensação, defesa dos benefícios até 2032 e revisão da malha logística.",
-      fee: "Projeto de alto valor, com êxito na compensação.",
-      when: "A compensação dos benefícios vai até 2032. A decisão logística precisa ser tomada antes.",
-      step: "Identifique quais clientes têm termo de acordo ou benefício de ICMS e cheque a situação de cada um no Fundo de Compensação.",
-      pitch: "“O seu incentivo de ICMS tem data para acabar. Há compensação prevista, mas é preciso estar habilitado.”",
+      hint: "Benefícios fiscais com prazo para acabar vão exigir decisões estratégicas das empresas da sua carteira.",
       w: { atuacao: { ambos: 2, consultivo: 2, contencioso: 1 }, porte: { med: 1, grande: 2 }, setores: { industria: 4, comercio: 3, agro: 2 }, regime: { real: 2 }, indiretos: { alta: 3, media: 1 }, objetivo: { ticket: 3 } } },
 
     { id: "comex", title: "Exportadores, importadores e Zona Franca",
-      desc: "Exportações seguem desoneradas, mas o ressarcimento de créditos ganha regras e prazos novos. Regimes aduaneiros especiais e a Zona Franca de Manaus mantêm tratamento próprio, com detalhes que mudam a conta do cliente.",
-      offer: "Gestão de ressarcimento de créditos, enquadramento em regimes aduaneiros e planejamento da cadeia de comércio exterior.",
-      fee: "Fixo mais êxito sobre o crédito ressarcido.",
-      when: "Crédito parado é capital de giro perdido desde 2027.",
-      step: "Ofereça aos exportadores da carteira um levantamento do tempo médio de ressarcimento e do saldo de créditos parado.",
-      pitch: "“Exportar continua desonerado, mas só se o seu crédito voltar para o caixa. Vamos acelerar isso.”",
+      hint: "Exportadores e importadores enfrentam questões específicas que afetam diretamente o caixa.",
       w: { setores: { agro: 4, industria: 3, comercio: 1 }, regime: { real: 2 }, indiretos: { alta: 2 }, comp: { processo: 1, contabil: 1 }, objetivo: { ticket: 2 } } },
 
     { id: "financeiro", title: "Serviços financeiros, seguros e cooperativas",
-      desc: "Bancos, seguradoras, fundos, planos de saúde e cooperativas têm regimes específicos, com base de cálculo e alíquotas próprias. Pouca gente domina esses regimes.",
-      offer: "Parecer sobre o regime específico, modelagem da base de cálculo e revisão de produtos.",
-      fee: "Projeto e retainer especializado.",
-      when: "As regras específicas entram junto com a CBS em 2027.",
-      step: "Escolha um nicho (cooperativas de crédito, corretoras ou planos de saúde) e publique um material sobre o regime dele.",
-      pitch: "“O regime do seu setor é diferente do resto da economia, e quase ninguém o conhece a fundo.”",
+      hint: "O setor financeiro tem um regime próprio, conhecido por pouquíssimos profissionais.",
       w: { atuacao: { consultivo: 2, ambos: 1 }, setores: { financeiro: 5, saude: 1 }, comp: { contabil: 1 }, reforma: { avanc: 2 }, objetivo: { autoridade: 1, ticket: 1 } } },
 
     { id: "publico", title: "Assessoria a municípios e estados",
-      desc: "Municípios perdem o ISS e estados o ICMS gradualmente, e a receita passa a ser distribuída pelo Comitê Gestor do IBS. Os entes precisam de apoio em cadastro, fiscalização, transição de receitas e contencioso de distribuição.",
-      offer: "Assessoria técnica na transição de receitas, fiscalização do IBS e defesa do ente no Comitê Gestor.",
-      fee: "Contrato público por inexigibilidade ou licitação, em regra mensal.",
-      when: "A queda do ISS e do ICMS começa em 2029. Os entes precisam se preparar antes.",
-      step: "Agende uma conversa com a Secretaria de Fazenda de um município médio da sua região sobre a perda do ISS.",
-      pitch: "“O município vai depender do Comitê Gestor para receber. Vamos garantir que ele não perca receita na transição.”",
+      hint: "Estados e municípios vão precisar de apoio técnico na transição das suas receitas.",
       w: { atuacao: { ambos: 1, consultivo: 1, contencioso: 1 }, setores: { publico: 6 }, comp: { processo: 1, comunicacao: 1 }, objetivo: { recorrencia: 2 } } },
 
     { id: "terceiro", title: "Imunidades e terceiro setor",
-      desc: "Entidades beneficentes, religiosas, de educação e de saúde sem fins lucrativos precisam entender o alcance das imunidades e reduções no IBS e na CBS, e quando a atividade econômica passa a ser tributada.",
-      offer: "Revisão estatutária e de atividades, parecer de imunidade e defesa em fiscalizações.",
-      fee: "Projeto e retainer anual.",
-      when: "Antes da CBS plena em 2027, quando receitas acessórias serão testadas.",
-      step: "Ofereça a uma federação ou associação de entidades um encontro sobre imunidade no sistema novo.",
-      pitch: "“A imunidade continua, mas não cobre tudo o que a sua entidade faz. Vamos separar o que é protegido.”",
+      hint: "Entidades imunes e sem fins lucrativos vão precisar entender até onde vai a proteção no sistema novo.",
       w: { atuacao: { consultivo: 2 }, setores: { terceiro: 6, saude: 2 }, objetivo: { autoridade: 1, recorrencia: 1 } } },
 
     { id: "taxdesk", title: "Tax desk da transição (assessoria recorrente)",
-      desc: "De 2026 a 2033 haverá regulamentos, alíquotas de referência atualizadas e mudanças de sistema todos os anos. O cliente precisa de alguém que traduza cada mudança para a operação dele.",
-      offer: "Boletim mensal personalizado, reunião periódica e plantão de dúvidas para o time fiscal.",
-      fee: "Fee mensal por faixa de faturamento do cliente.",
-      when: "Sete anos de transição são sete anos de recorrência.",
-      step: "Transforme os 3 clientes mais próximos em assinantes de um piloto de 3 meses.",
-      pitch: "“São sete anos de mudanças. Você precisa de um acompanhamento contínuo, não de um parecer isolado.”",
+      hint: "São anos de transição com mudanças contínuas. Seu perfil favorece um modelo de acompanhamento recorrente.",
       w: { atuacao: { consultivo: 3, ambos: 2 }, porte: { solo: 1, peq: 1, med: 1 }, reforma: { inter: 1, avanc: 2 }, comp: { contabil: 1 }, objetivo: { recorrencia: 5 }, parceiros: { forte: 2, fraca: 1 } } },
 
     { id: "educacao", title: "Treinamentos in-company e conteúdo de autoridade",
-      desc: "Equipes fiscais, de compras, comercial e controladoria precisam aprender a lidar com crédito amplo, split payment e preço sem imposto embutido. Treinamento é a porta de entrada para projetos maiores.",
-      offer: "Treinamentos in-company por área, palestras para associações e conteúdo recorrente.",
-      fee: "Por turma ou palestra, com conversão em projetos de consultoria.",
-      when: "O mercado está no pico de demanda por explicação. Quem ensina primeiro é lembrado depois.",
-      step: "Monte uma aula de 90 minutos para equipes de compras e ofereça a uma associação comercial da sua cidade.",
-      pitch: "“Sua equipe de compras vai negociar crédito, não preço. Vamos prepará-la.”",
+      hint: "O mercado procura quem explique a Reforma. Seu perfil favorece se posicionar como referência no tema.",
       w: { atuacao: { inicio: 2, consultivo: 1 }, reforma: { inter: 1, avanc: 2 }, comp: { comunicacao: 5 }, objetivo: { autoridade: 4, volume: 1 }, parceiros: { forte: 1 } } },
 
     { id: "ma", title: "Due diligence e M&A na transição",
-      desc: "Valuation, contingências e cláusulas de indenização precisam considerar créditos acumulados, benefícios de ICMS com prazo para acabar e a carga do sistema novo.",
-      offer: "Due diligence tributária com capítulo da Reforma, cláusulas de ajuste de preço e indenização no SPA.",
-      fee: "Projeto de alto valor por operação.",
-      when: "Toda operação fechada até 2033 vai precificar a transição, bem ou mal.",
-      step: "Ofereça aos escritórios de M&A e às boutiques de investimento um módulo de Reforma para as due diligences deles.",
-      pitch: "“Quem compra uma empresa hoje compra também os créditos e os incentivos que vão acabar.”",
+      hint: "Operações societárias vão precisar considerar os efeitos da transição em valor e risco.",
       w: { atuacao: { consultivo: 2, ambos: 1 }, porte: { med: 2, grande: 3 }, setores: { tech: 2, financeiro: 2, industria: 1, saude: 1 }, comp: { contratos: 3 }, objetivo: { ticket: 3 } } }
   ];
 
@@ -747,8 +667,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
       });
     });
     hits.sort(function (a, b) { return b.w - a.w; });
-    var ratio = cap ? Math.min(1, score / (cap * 0.7)) : 0;
-    return { f: f, score: score, fit: Math.round(28 + 70 * ratio), hits: hits.slice(0, 4).map(function (h) { return h.tag; }) };
+    var ratio = cap ? Math.min(1, score / cap) : 0;
+    return { f: f, score: score, fit: Math.round(30 + 66 * ratio), hits: hits.slice(0, 4).map(function (h) { return h.tag; }) };
   }
 
   function joinPt(list) {
@@ -767,88 +687,53 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     return out;
   }
 
-  var lastSummary = "";
+  var CLUB_URL = "https://taxnowbr.com/#inscricao";
 
   function renderResult() {
-    var ranked = FRONTS.map(scoreFront).sort(function (a, b) { return b.score - a.score || b.fit - a.fit; });
+    var ranked = FRONTS.map(scoreFront).sort(function (a, b) { return b.fit - a.fit || b.score - a.score; });
     var top = ranked.slice(0, 3);
-    var radar = ranked.slice(3, 7);
+    var more = ranked.slice(3).filter(function (r) { return r.fit >= 60; }).length;
     var tags = profileTags();
+    var first = lead.nome ? esc(lead.nome.split(" ")[0]) : "";
 
     var html = '<div class="r-head">' +
       '<div class="eyebrow">Seu radar</div>' +
-      "<h2>" + (lead.nome ? esc(lead.nome.split(" ")[0]) + ", estas são as suas" : "Suas") + ' <span class="accent">3 frentes prioritárias</span> na Reforma Tributária</h2>' +
-      '<p class="lead">Ordenadas pela aderência ao perfil que você descreveu. Comece pela primeira: é onde o seu repertório atual já encontra demanda.</p>' +
+      "<h2>" + (first ? first + ", estas são as suas" : "Suas") + ' <span class="accent">3 frentes com maior potencial</span></h2>' +
+      '<p class="lead">Este é um primeiro direcionamento, a partir do perfil que você descreveu. <strong>Como transformar cada frente em contratos</strong> é o que trabalhamos na mentoria do TaxNowBR Club.</p>' +
       '<div class="profile">' + tags.map(function (t) { return '<span class="chip">' + esc(t) + "</span>"; }).join("") + "</div></div>";
 
     html += '<div class="fronts">';
     top.forEach(function (r, i) {
-      var f = r.f;
       html += '<article class="front">' +
-        '<div class="front-top"><div><div class="rank">Frente ' + (i + 1) + "</div><h3>" + esc(f.title) + "</h3></div>" +
+        '<div class="front-top"><div><div class="rank">Frente ' + (i + 1) + "</div><h3>" + esc(r.f.title) + "</h3></div>" +
         '<div class="fit"><div class="fit-num">' + r.fit + "<small>%</small></div><div class=\"fit-lbl\">Aderência</div></div></div>" +
-        "<p>" + esc(f.desc) + "</p>" +
-        (r.hits.length ? '<p class="why"><b>Por que para você:</b> combina com ' + esc(joinPt(r.hits)) + ".</p>" : "") +
-        '<dl class="facts">' +
-        '<div class="fact"><dt>O que vender</dt><dd>' + esc(f.offer) + "</dd></div>" +
-        '<div class="fact"><dt>Como cobrar</dt><dd>' + esc(f.fee) + "</dd></div>" +
-        '<div class="fact"><dt>Janela</dt><dd>' + esc(f.when) + "</dd></div>" +
-        '<div class="fact"><dt>Primeiro passo</dt><dd>' + esc(f.step) + "</dd></div>" +
-        '<div class="fact wide"><dt>Abordagem para o cliente</dt><dd class="pitch">' + esc(f.pitch) + "</dd></div>" +
-        "</dl></article>";
+        "<p>" + esc(r.f.hint) + "</p>" +
+        (r.hits.length ? '<p class="why"><b>Por que para você:</b> combina com ' + esc(joinPt(r.hits.slice(0, 3))) + ".</p>" : "") +
+        '<a class="locked" href="' + CLUB_URL + '" target="_blank" rel="noopener">' +
+        "<span>O que oferecer, como precificar e como abordar o cliente nesta frente</span><b>Na mentoria →</b></a>" +
+        "</article>";
     });
     html += "</div>";
 
-    html += '<div class="radar"><div class="eyebrow">Também no seu radar</div><div class="radar-list">';
-    radar.forEach(function (r) {
-      html += '<div class="radar-item"><div><h4>' + esc(r.f.title) + "</h4><p>" + esc(r.f.offer) + "</p></div>" +
-        '<div class="mini"><span>' + r.fit + '% de aderência</span><div class="bar"><i style="width:' + r.fit + '%"></i></div></div></div>';
-    });
-    html += "</div></div>";
+    if (more > 0) {
+      html += '<p class="more">Identificamos <strong>mais ' + more + (more === 1 ? " frente compatível" : " frentes compatíveis") +
+        "</strong> com o seu perfil. O mapa completo você vê dentro do TaxNowBR Club.</p>";
+    }
 
     html += '<div class="club">' +
       '<div class="eyebrow">Próximo passo</div>' +
-      "<h3>Transforme essas frentes em contratos assinados</h3>" +
-      '<p class="lead">O TaxNowBR Club é o programa de reposicionamento consultivo para advogados e contadores que querem ocupar o nicho aberto pela Reforma.</p>' +
-      '<div class="ctas"><a class="btn btn-primary" href="https://taxnowbr.com/#inscricao" target="_blank" rel="noopener">Conhecer o TaxNowBR Club</a></div>' +
+      "<h3>Você já sabe onde entrar. Agora falta saber como.</h3>" +
+      '<p class="lead">O TaxNowBR Club é a mentoria de reposicionamento para advogados e contadores que querem ocupar o espaço aberto pela Reforma Tributária e transformar conhecimento técnico em contratos.</p>' +
+      '<div class="ctas"><a class="btn btn-primary" href="' + CLUB_URL + '" target="_blank" rel="noopener">Quero entrar no TaxNowBR Club</a></div>' +
       "</div>";
 
-    html += '<div class="r-actions">' +
-      '<button class="btn btn-ghost" id="copy" type="button">Copiar meu plano</button>' +
-      '<button class="btn btn-ghost" id="redo" type="button">Refazer o diagnóstico</button>' +
-      '<span class="copied" id="copied" hidden>Plano copiado</span>' +
-      "</div><div id=\"copy-box\"></div>";
+    html += '<div class="r-actions"><button class="btn btn-ghost" id="redo" type="button">Refazer o diagnóstico</button></div>';
 
     views.result.innerHTML = html;
     $("bar").style.width = "100%";
     show("result");
 
-    lastSummary = "MEU RADAR DA REFORMA TRIBUTÁRIA (TaxNowBR)\n" +
-      "Perfil: " + tags.join(" · ") + "\n\n" +
-      top.map(function (r, i) {
-        return (i + 1) + ". " + r.f.title + " (" + r.fit + "% de aderência)\n" +
-          "   O que vender: " + r.f.offer + "\n" +
-          "   Como cobrar: " + r.f.fee + "\n" +
-          "   Primeiro passo: " + r.f.step;
-      }).join("\n\n") +
-      "\n\nTambém no radar: " + radar.map(function (r) { return r.f.title; }).join("; ") +
-      "\n\nSaiba mais: taxnowbr.com";
-
-    $("copy").addEventListener("click", copyPlan);
     $("redo").addEventListener("click", function () { answers = {}; step = 0; show("quiz"); renderStep(); });
-  }
-
-  function copyPlan() {
-    var ok = function () { $("copied").hidden = false; setTimeout(function () { $("copied").hidden = true; }, 2500); };
-    var fallback = function () {
-      $("copy-box").innerHTML = '<textarea class="copy-fallback" id="copy-text" readonly aria-label="Seu plano"></textarea>';
-      var ta = $("copy-text"); ta.value = lastSummary; ta.focus(); ta.select();
-    };
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(lastSummary).then(ok, fallback);
-      } else fallback();
-    } catch (err) { fallback(); }
   }
 })();
 </script>
