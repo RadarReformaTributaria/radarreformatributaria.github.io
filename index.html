@@ -607,13 +607,18 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   function renderResult() {
     var pts = aptitude();
-    var direct = pts >= MENTORIA_MIN;
+    var ready = pts >= MENTORIA_MIN;
+    // Quem escolhe atuar diretamente com tributário sempre recebe a mentoria, qualquer que seja a pontuação.
+    var direct = ready || answers.caminho === "direto";
     var first = lead.nome ? esc(lead.nome.split(" ")[0]) : "";
     var opps = OPPS[answers.clientes] || OPPS.ambos;
     var html;
 
     html = '<div class="r-head"><div class="eyebrow">Seu resultado</div>';
-    if (direct) {
+    if (direct && !ready) {
+      html += "<h2>" + (first ? first + ", o" : "O") + ' seu caminho é <span class="accent">atuar diretamente</span> nas oportunidades da Reforma.</h2>' +
+        '<p class="lead">A Reforma abriu espaço para quem se preparar agora. O que separa essa decisão dos contratos é <strong>preparo, posicionamento e abordagem</strong>, e é isso que construímos na mentoria do TaxNowBR Club.</p>';
+    } else if (direct) {
       html += "<h2>" + (first ? first + ", você" : "Você") + ' tem perfil para <span class="accent">atuar diretamente</span> nas oportunidades da Reforma.</h2>' +
         '<p class="lead">A sua base técnica permite assumir esses casos. O que separa o conhecimento dos contratos é <strong>posicionamento, oferta e abordagem</strong>, e é isso que construímos na mentoria do TaxNowBR Club.</p>';
     } else {
