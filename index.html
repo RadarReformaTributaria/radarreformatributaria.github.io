@@ -213,13 +213,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   font-family: var(--display); font-size: 12px; font-weight: 500; letter-spacing: 0.04em; border-radius: 999px;
   border: 1px solid var(--line); padding: 6px 12px; color: var(--text); background: rgba(1, 8, 24, 0.5);
 }
-.score { padding: 22px 20px; display: grid; gap: 12px; }
-.score-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.score-lbl { font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); }
-.score-num { font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.score-num small { font-size: 15px; color: var(--text); font-weight: 500; }
-.score .bar { height: 6px; }
-.score p { margin: 0; font-size: 14px; color: var(--text); }
 .opps { display: grid; gap: 12px; }
 .opps-head { font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text); }
 .opps ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
@@ -437,9 +430,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   var Q_BY_ID = {};
   QUESTIONS.forEach(function (q) { Q_BY_ID[q.id] = q; });
-  var MAX_PTS = QUESTIONS.reduce(function (sum, q) {
-    return sum + Math.max.apply(null, q.options.map(function (o) { return o.pts || 0; }));
-  }, 0);
   var MENTORIA_MIN = 6;
 
   // Oportunidades mostradas no resultado: só o nome, sem detalhar como executar.
@@ -617,7 +607,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   function renderResult() {
     var pts = aptitude();
-    var pct = Math.round(15 + 85 * pts / MAX_PTS);
     var direct = pts >= MENTORIA_MIN;
     var first = lead.nome ? esc(lead.nome.split(" ")[0]) : "";
     var opps = OPPS[answers.clientes] || OPPS.ambos;
@@ -632,11 +621,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         '<p class="lead">Você não precisa virar tributarista para ganhar com a Reforma. Os seus clientes vão precisar de apoio tributário, e <strong>quem tem o relacionamento é você</strong>. Com um parceiro especialista, você leva a solução sem sair da sua área.</p>';
     }
     html += '<div class="profile">' + profileTags().map(function (t) { return '<span class="chip">' + esc(t) + "</span>"; }).join("") + "</div></div>";
-
-    html += '<div class="score panel"><div class="score-row"><span class="score-lbl">Aptidão para atuação tributária direta</span>' +
-      '<span class="score-num">' + pct + "<small>%</small></span></div>" +
-      '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
-      "<p>" + (direct ? "Acima da linha que recomendamos para atuar diretamente." : "Abaixo da linha que recomendamos para atuar diretamente. A parceria é o caminho mais seguro e rápido.") + "</p></div>";
 
     html += '<div class="opps"><div class="opps-head">Onde estão as oportunidades para a sua carteira</div><ul>' +
       opps.map(function (o) { return '<li class="panel">' + esc(o) + "</li>"; }).join("") + "</ul>" +
