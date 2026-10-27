@@ -226,6 +226,11 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 .cta li::before { content: "✓"; color: var(--gold); font-weight: 700; }
 .cta .pitch { margin: 4px 0 0; padding: 14px 16px; border-left: 2px solid var(--gold); background: rgba(245, 185, 66, 0.08); border-radius: 0 8px 8px 0; color: var(--text); font-size: 15px; }
 .cta .pitch strong { color: var(--gold-light); font-weight: 600; }
+.meet-msg { margin: 0; padding: 14px 16px; border-radius: 8px; font-size: 15px; }
+.meet-msg.ok { background: rgba(245, 185, 66, 0.12); border: 1px solid rgba(245, 185, 66, 0.5); color: var(--white); }
+.meet-msg.ok strong { color: var(--gold-light); }
+.meet-msg.err { background: rgba(255, 138, 122, 0.1); border: 1px solid var(--error); color: var(--error); }
+.btn-primary#meet:disabled::after { content: ""; }
 .cta .ctas, .r-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 .foot { border-top: 1px solid var(--line); background: rgba(1, 8, 24, 0.6); }
@@ -443,22 +448,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   var TAXNOW_URL = "https://taxnowbr.com/#inscricao";
   var VENTURA_URL = "https://venturalaw.com.br/";
-  var MEETING_EMAIL = "tributario@venturalaw.com.br";
-
-  // Abre o app de e-mail do visitante com o pedido de reunião já escrito.
-  function meetingLink(direct) {
-    var tema = direct ? "a mentoria do TaxNowBR Club" : "a parceria com o Ventura Advogados";
-    var subject = "Agendar reunião: " + (direct ? "mentoria TaxNowBR Club" : "parceria com o Ventura Advogados");
-    var body = "Olá!\n\n" +
-      "Fiz o diagnóstico no Radar da Reforma Tributária e tenho interesse em agendar uma reunião para conhecer melhor " + tema + ".\n\n" +
-      "Por favor, me indiquem os horários disponíveis.\n\n" +
-      (lead.nome ? "Nome: " + lead.nome + "\n" : "") +
-      (lead.email ? "E-mail: " + lead.email + "\n" : "") +
-      (lead.whatsapp ? "WhatsApp: " + lead.whatsapp + "\n" : "") +
-      "\nObrigado(a)!";
-    return "mailto:" + MEETING_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-  }
-
   // ---------- Estado ----------
   var answers = {};
   var step = 0;
@@ -567,14 +556,36 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     data.from_name = "Radar da Reforma Tributária";
     data.replyto = lead.email;
     data.botcheck = $("lead-hp").value;
-    try {
-      fetch(LEAD_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(data),
-        keepalive: true
-      }).catch(function () {});
-    } catch (err) {}
+    postForm(data).catch(function () {});
+  }
+
+  // Pedido de reunião: avisa a equipe com os dados do cadastro, sem abrir o e-mail do visitante.
+  function requestMeeting(direct) {
+    return postForm({
+      access_key: WEB3FORMS_KEY,
+      subject: "Pedido de reunião: " + lead.nome + " (" + (direct ? "mentoria TaxNowBR Club" : "parceria com o Ventura Advogados") + ")",
+      from_name: "Radar da Reforma Tributária",
+      replyto: lead.email,
+      "Pedido": "Quer agendar uma reunião com a equipe",
+      "Interesse": direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados",
+      Nome: lead.nome,
+      "E-mail": lead.email,
+      "WhatsApp": lead.whatsapp,
+      "Data e hora": new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+      botcheck: $("lead-hp").value
+    });
+  }
+
+  function postForm(data) {
+    return fetch(LEAD_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(data),
+      keepalive: true
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (!res.success) throw new Error(res.message || "Falha no envio");
+      return res;
+    });
   }
 
   $("lead-form").addEventListener("submit", function (e) {
@@ -664,8 +675,9 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         '<p class="lead">O TaxNowBR Club é a mentoria para advogados que querem ocupar o espaço aberto pela Reforma Tributária e transformar conhecimento técnico em contratos.</p>' +
         "<ul><li>O que oferecer em cada frente</li><li>Como precificar</li><li>Como abordar e conquistar o cliente</li></ul>" +
         '<p class="pitch"><strong>Agende uma conversa gratuita com a nossa equipe.</strong> Em poucos minutos, vamos olhar o seu perfil e mostrar os próximos passos para você transformar a Reforma em novos contratos.</p>' +
-        '<div class="ctas"><a class="btn btn-primary" href="' + esc(meetingLink(true)) + '">Agendar uma reunião com a equipe</a>' +
+        '<div class="ctas"><button class="btn btn-primary" id="meet" type="button">Agendar uma reunião com a equipe</button>' +
         '<a class="btn btn-primary" href="' + TAXNOW_URL + '" target="_blank" rel="noopener">Quero entrar no TaxNowBR Club</a></div>' +
+        '<p class="meet-msg" id="meet-msg" role="status" hidden></p>' +
         "</div>";
     } else {
       html += '<div class="cta panel">' +
@@ -674,8 +686,9 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         '<p class="lead">Fale com o <strong>Ventura Advogados</strong>, que conta com equipe especializada em Direito Tributário, e entenda como funciona a parceria para levar as soluções da Reforma aos seus clientes.</p>' +
         "<ul><li>Você continua à frente do relacionamento com o cliente</li><li>A equipe tributária cuida da parte técnica</li><li>Você amplia o que oferece sem mudar de área</li></ul>" +
         '<p class="pitch"><strong>Agende uma conversa gratuita com a nossa equipe.</strong> Vamos entender a sua carteira e mostrar, na prática, como a parceria pode gerar novas receitas para o seu escritório desde já.</p>' +
-        '<div class="ctas"><a class="btn btn-primary" href="' + esc(meetingLink(false)) + '">Agendar uma reunião com a equipe</a>' +
+        '<div class="ctas"><button class="btn btn-primary" id="meet" type="button">Agendar uma reunião com a equipe</button>' +
         '<a class="btn btn-primary" href="' + VENTURA_URL + '" target="_blank" rel="noopener">Quero ser parceiro do Ventura</a></div>' +
+        '<p class="meet-msg" id="meet-msg" role="status" hidden></p>' +
         "</div>";
     }
 
@@ -686,6 +699,21 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     show("result");
 
     $("redo").addEventListener("click", function () { answers = {}; step = 0; show("quiz"); renderStep(); });
+    $("meet").addEventListener("click", function () {
+      var btn = this, msg = $("meet-msg");
+      btn.disabled = true; btn.textContent = "Enviando…";
+      requestMeeting(direct).then(function () {
+        btn.textContent = "Pedido de reunião enviado";
+        msg.className = "meet-msg ok";
+        msg.innerHTML = "<strong>Pedido recebido!</strong> Nossa equipe entrará em contato pelo e-mail <strong>" + esc(lead.email) + "</strong> para agendar a reunião.";
+        msg.hidden = false;
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = "Agendar uma reunião com a equipe";
+        msg.className = "meet-msg err";
+        msg.textContent = "Não conseguimos enviar o seu pedido agora. Verifique a sua conexão e tente novamente.";
+        msg.hidden = false;
+      });
+    });
   }
 })();
 </script>
