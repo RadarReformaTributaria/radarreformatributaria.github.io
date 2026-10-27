@@ -298,7 +298,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
             <input id="lead-phone" name="whatsapp" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="(11) 91234-5678" maxlength="16" required>
           </div>
         </div>
-        <div class="hp" aria-hidden="true"><input id="lead-hp" name="_honey" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="hp" aria-hidden="true"><input id="lead-hp" name="botcheck" type="text" tabindex="-1" autocomplete="off"></div>
         <label class="consent" for="lead-consent">
           <input id="lead-consent" type="checkbox" required>
           <span>Autorizo a TaxNowBR e o Ventura Advogados a usar meu nome, e-mail e WhatsApp para entrar em contato e enviar conteúdos sobre a Reforma Tributária. Posso pedir a exclusão dos meus dados a qualquer momento.</span>
@@ -526,8 +526,9 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   $("next").addEventListener("click", next);
   $("back").addEventListener("click", function () { if (step > 0) { step--; renderStep(); } });
 
-  // ---------- Cadastro (nome, e-mail e WhatsApp; seguem por e-mail via FormSubmit junto com o resumo, ao fim do questionário) ----------
-  var LEAD_ENDPOINT = "https://formsubmit.co/ajax/bdeluiz@venturalaw.com.br";
+  // ---------- Cadastro (nome, e-mail e WhatsApp; seguem por e-mail via Web3Forms junto com o resumo, ao fim do questionário) ----------
+  var LEAD_ENDPOINT = "https://api.web3forms.com/submit";
+  var WEB3FORMS_KEY = "49817469-6aa5-479c-adf7-1fb39715796d"; // entrega em bdeluiz@venturalaw.com.br
   var lead = { nome: "", email: "", whatsapp: "" };
 
   function formatPhone(v) {
@@ -551,6 +552,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   // Enviado uma vez por diagnóstico concluído: dados do cadastro + resumo das respostas.
   function sendSummary(direct) {
     var data = {
+      access_key: WEB3FORMS_KEY,
       Nome: lead.nome,
       "E-mail": lead.email,
       "WhatsApp": lead.whatsapp
@@ -561,10 +563,10 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     });
     data["Resultado indicado"] = direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados";
     data["Data e hora"] = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
-    data._subject = "Radar da Reforma Tributária: " + lead.nome + " (" + (direct ? "mentoria" : "parceria") + ")";
-    data._replyto = lead.email;
-    data._template = "table";
-    data._honey = $("lead-hp").value;
+    data.subject = "Radar da Reforma Tributária: " + lead.nome + " (" + (direct ? "mentoria" : "parceria") + ")";
+    data.from_name = "Radar da Reforma Tributária";
+    data.replyto = lead.email;
+    data.botcheck = $("lead-hp").value;
     try {
       fetch(LEAD_ENDPOINT, {
         method: "POST",
