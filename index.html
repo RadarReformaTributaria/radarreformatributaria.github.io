@@ -224,6 +224,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 .cta ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--text); font-size: 15px; }
 .cta li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
 .cta li::before { content: "✓"; color: var(--gold); font-weight: 700; }
+.cta .pitch { margin: 4px 0 0; padding: 14px 16px; border-left: 2px solid var(--gold); background: rgba(245, 185, 66, 0.08); border-radius: 0 8px 8px 0; color: var(--text); font-size: 15px; }
+.cta .pitch strong { color: var(--gold-light); font-weight: 600; }
 .cta .ctas, .r-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 .foot { border-top: 1px solid var(--line); background: rgba(1, 8, 24, 0.6); }
@@ -652,6 +654,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         "<h3>Você já sabe onde entrar. Agora falta saber como.</h3>" +
         '<p class="lead">O TaxNowBR Club é a mentoria para advogados que querem ocupar o espaço aberto pela Reforma Tributária e transformar conhecimento técnico em contratos.</p>' +
         "<ul><li>O que oferecer em cada frente</li><li>Como precificar</li><li>Como abordar e conquistar o cliente</li></ul>" +
+        '<p class="pitch"><strong>Agende uma conversa gratuita com a nossa equipe.</strong> Em poucos minutos, vamos olhar o seu perfil e mostrar os próximos passos para você transformar a Reforma em novos contratos.</p>' +
         '<div class="ctas"><a class="btn btn-primary" href="' + esc(meetingLink(true)) + '">Agendar uma reunião com a equipe</a>' +
         '<a class="btn btn-primary" href="' + TAXNOW_URL + '" target="_blank" rel="noopener">Quero entrar no TaxNowBR Club</a></div>' +
         "</div>";
@@ -661,6 +664,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         "<h3>Surfe a onda da Reforma com quem já é especialista.</h3>" +
         '<p class="lead">Fale com o <strong>Ventura Advogados</strong>, que conta com equipe especializada em Direito Tributário, e entenda como funciona a parceria para levar as soluções da Reforma aos seus clientes.</p>' +
         "<ul><li>Você continua à frente do relacionamento com o cliente</li><li>A equipe tributária cuida da parte técnica</li><li>Você amplia o que oferece sem mudar de área</li></ul>" +
+        '<p class="pitch"><strong>Agende uma conversa gratuita com a nossa equipe.</strong> Vamos entender a sua carteira e mostrar, na prática, como a parceria pode gerar novas receitas para o seu escritório desde já.</p>' +
         '<div class="ctas"><a class="btn btn-primary" href="' + esc(meetingLink(false)) + '">Agendar uma reunião com a equipe</a>' +
         '<a class="btn btn-primary" href="' + VENTURA_URL + '" target="_blank" rel="noopener">Quero ser parceiro do Ventura</a></div>' +
         "</div>";
