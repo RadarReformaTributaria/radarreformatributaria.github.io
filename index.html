@@ -441,6 +441,21 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   var TAXNOW_URL = "https://taxnowbr.com/#inscricao";
   var VENTURA_URL = "https://venturalaw.com.br/";
+  var MEETING_EMAIL = "tributario@venturalaw.com.br";
+
+  // Abre o app de e-mail do visitante com o pedido de reunião já escrito.
+  function meetingLink(direct) {
+    var tema = direct ? "a mentoria do TaxNowBR Club" : "a parceria com o Ventura Advogados";
+    var subject = "Agendar reunião: " + (direct ? "mentoria TaxNowBR Club" : "parceria com o Ventura Advogados");
+    var body = "Olá, equipe!\n\n" +
+      "Fiz o diagnóstico no Radar da Reforma Tributária e tenho interesse em agendar uma reunião para conhecer melhor " + tema + ".\n\n" +
+      "Por favor, me indiquem os horários disponíveis.\n\n" +
+      (lead.nome ? "Nome: " + lead.nome + "\n" : "") +
+      (lead.email ? "E-mail: " + lead.email + "\n" : "") +
+      (lead.whatsapp ? "WhatsApp: " + lead.whatsapp + "\n" : "") +
+      "\nObrigado(a)!";
+    return "mailto:" + MEETING_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  }
 
   // ---------- Estado ----------
   var answers = {};
@@ -637,7 +652,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         "<h3>Você já sabe onde entrar. Agora falta saber como.</h3>" +
         '<p class="lead">O TaxNowBR Club é a mentoria para advogados que querem ocupar o espaço aberto pela Reforma Tributária e transformar conhecimento técnico em contratos.</p>' +
         "<ul><li>O que oferecer em cada frente</li><li>Como precificar</li><li>Como abordar e conquistar o cliente</li></ul>" +
-        '<div class="ctas"><a class="btn btn-primary" href="' + TAXNOW_URL + '" target="_blank" rel="noopener">Quero entrar no TaxNowBR Club</a></div>' +
+        '<div class="ctas"><a class="btn btn-primary" href="' + TAXNOW_URL + '" target="_blank" rel="noopener">Quero entrar no TaxNowBR Club</a>' +
+        '<a class="btn btn-ghost" href="' + esc(meetingLink(true)) + '">Agendar uma reunião com a equipe</a></div>' +
         "</div>";
     } else {
       html += '<div class="cta panel">' +
@@ -645,7 +661,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         "<h3>Surfe a onda da Reforma com quem já é especialista.</h3>" +
         '<p class="lead">Fale com o <strong>Ventura Advogados</strong>, que conta com equipe especializada em Direito Tributário, e entenda como funciona a parceria para levar as soluções da Reforma aos seus clientes.</p>' +
         "<ul><li>Você continua à frente do relacionamento com o cliente</li><li>A equipe tributária cuida da parte técnica</li><li>Você amplia o que oferece sem mudar de área</li></ul>" +
-        '<div class="ctas"><a class="btn btn-primary" href="' + VENTURA_URL + '" target="_blank" rel="noopener">Quero ser parceiro do Ventura</a></div>' +
+        '<div class="ctas"><a class="btn btn-primary" href="' + VENTURA_URL + '" target="_blank" rel="noopener">Quero ser parceiro do Ventura</a>' +
+        '<a class="btn btn-ghost" href="' + esc(meetingLink(false)) + '">Agendar uma reunião com a equipe</a></div>' +
         "</div>";
     }
 
