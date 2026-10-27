@@ -526,7 +526,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   $("next").addEventListener("click", next);
   $("back").addEventListener("click", function () { if (step > 0) { step--; renderStep(); } });
 
-  // ---------- Cadastro (nome, e-mail e WhatsApp enviados por e-mail via FormSubmit) ----------
+  // ---------- Cadastro (nome, e-mail e WhatsApp; seguem por e-mail via FormSubmit junto com o resumo, ao fim do questionário) ----------
   var LEAD_ENDPOINT = "https://formsubmit.co/ajax/bdeluiz@venturalaw.com.br";
   var lead = { nome: "", email: "", whatsapp: "" };
 
@@ -548,21 +548,28 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     }
   } catch (err) {}
 
-  function sendLead(data) {
+  // Enviado uma vez por diagnóstico concluído: dados do cadastro + resumo das respostas.
+  function sendSummary(direct) {
+    var data = {
+      Nome: lead.nome,
+      "E-mail": lead.email,
+      "WhatsApp": lead.whatsapp
+    };
+    QUESTIONS.forEach(function (q, i) {
+      var o = optOf(q, answers[q.id]);
+      data[(i + 1) + ". " + q.title] = o ? o.t : "";
+    });
+    data["Resultado indicado"] = direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados";
+    data["Data e hora"] = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    data._subject = "Radar da Reforma Tributária: " + lead.nome + " (" + (direct ? "mentoria" : "parceria") + ")";
+    data._replyto = lead.email;
+    data._template = "table";
+    data._honey = $("lead-hp").value;
     try {
       fetch(LEAD_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({
-          Nome: data.nome,
-          "E-mail": data.email,
-          "WhatsApp": data.whatsapp,
-          "Data e hora": new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
-          _subject: "Novo cadastro no Radar da Reforma Tributária: " + data.nome,
-          _replyto: data.email,
-          _template: "table",
-          _honey: $("lead-hp").value
-        }),
+        body: JSON.stringify(data),
         keepalive: true
       }).catch(function () {});
     } catch (err) {}
@@ -589,10 +596,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     if (msg) { (!nameOk ? nameEl : !emailOk ? emailEl : !phoneOk ? phoneEl : $("lead-consent")).focus(); return; }
 
     phoneEl.value = whatsapp;
-    var isNew = nome !== lead.nome || email !== lead.email || whatsapp !== lead.whatsapp;
     lead = { nome: nome, email: email, whatsapp: whatsapp };
     try { localStorage.setItem("taxnow-radar-lead", JSON.stringify(lead)); } catch (err) {}
-    if (isNew) sendLead(lead);
     answers = {}; step = 0; show("quiz"); renderStep();
   });
   $("restart-quiz").addEventListener("click", function () { answers = {}; step = 0; show("intro"); });
@@ -630,6 +635,8 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     var first = lead.nome ? esc(lead.nome.split(" ")[0]) : "";
     var opps = OPPS[answers.clientes] || OPPS.ambos;
     var html;
+
+    sendSummary(direct);
 
     html = '<div class="r-head"><div class="eyebrow">Seu resultado</div>';
     if (direct && !ready) {
