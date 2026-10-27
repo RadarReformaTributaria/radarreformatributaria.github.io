@@ -517,7 +517,11 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 
   // ---------- Cadastro (nome, e-mail e WhatsApp; seguem por e-mail via Web3Forms junto com o resumo, ao fim do questionário) ----------
   var LEAD_ENDPOINT = "https://api.web3forms.com/submit";
-  var WEB3FORMS_KEY = "49817469-6aa5-479c-adf7-1fb39715796d"; // entrega em bdeluiz@venturalaw.com.br
+  // Uma chave por destinatário (o plano gratuito entrega cada chave em um único endereço).
+  var WEB3FORMS_KEYS = [
+    "49817469-6aa5-479c-adf7-1fb39715796d", // bdeluiz@venturalaw.com.br
+    "9ce12795-7ecb-4e2a-b099-2ff4f90d7b7d"  // contato@venturalaw.com.br
+  ];
   var lead = { nome: "", email: "", whatsapp: "" };
 
   function formatPhone(v) {
@@ -541,7 +545,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   // Enviado uma vez por diagnóstico concluído: dados do cadastro + resumo das respostas.
   function sendSummary(direct) {
     var data = {
-      access_key: WEB3FORMS_KEY,
       Nome: lead.nome,
       "E-mail": lead.email,
       "WhatsApp": lead.whatsapp
@@ -562,7 +565,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   // Pedido de reunião: avisa a equipe com os dados do cadastro, sem abrir o e-mail do visitante.
   function requestMeeting(direct) {
     return postForm({
-      access_key: WEB3FORMS_KEY,
       subject: "Pedido de reunião: " + lead.nome + " (" + (direct ? "mentoria TaxNowBR Club" : "parceria com o Ventura Advogados") + ")",
       from_name: "Radar da Reforma Tributária",
       replyto: lead.email,
@@ -576,15 +578,23 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     });
   }
 
+  // Envia o mesmo conteúdo para cada chave; dá certo se ao menos um destinatário recebeu.
   function postForm(data) {
-    return fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(data),
-      keepalive: true
-    }).then(function (r) { return r.json(); }).then(function (res) {
-      if (!res.success) throw new Error(res.message || "Falha no envio");
-      return res;
+    var sends = WEB3FORMS_KEYS.map(function (key) {
+      var body = { access_key: key };
+      Object.keys(data).forEach(function (k) { body[k] = data[k]; });
+      return fetch(LEAD_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(body),
+        keepalive: true
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (!res.success) throw new Error(res.message || "Falha no envio");
+        return res;
+      }).then(function () { return true; }, function () { return false; });
+    });
+    return Promise.all(sends).then(function (ok) {
+      if (ok.indexOf(true) === -1) throw new Error("Falha no envio");
     });
   }
 
