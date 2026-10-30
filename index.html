@@ -231,6 +231,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
 .meet-msg.ok strong { color: var(--gold-light); }
 .meet-msg.err { background: rgba(255, 138, 122, 0.1); border: 1px solid var(--error); color: var(--error); }
 .btn-primary#meet:disabled::after { content: ""; }
+.err-detail { display: block; margin-top: 6px; font-size: 12px; opacity: .75; }
 .cta .ctas, .r-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 .foot { border-top: 1px solid var(--line); background: rgba(1, 8, 24, 0.6); }
@@ -583,20 +584,22 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   // Envia o mesmo conteúdo para cada chave; dá certo se ao menos um destinatário recebeu.
   function postForm(data) {
     var sends = WEB3FORMS_KEYS.map(function (key) {
-      var body = { access_key: key };
-      Object.keys(data).forEach(function (k) { body[k] = data[k]; });
+      // Envio como formulário comum (sem JSON nem keepalive): o Safari do iPhone bloqueia a outra forma.
+      var body = new FormData();
+      body.append("access_key", key);
+      Object.keys(data).forEach(function (k) { body.append(k, data[k]); });
       return fetch(LEAD_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(body),
-        keepalive: true
+        headers: { "Accept": "application/json" },
+        body: body
       }).then(function (r) { return r.json(); }).then(function (res) {
         if (!res.success) throw new Error(res.message || "Falha no envio");
-        return res;
-      }).then(function () { return true; }, function () { return false; });
+        return "";
+      }).catch(function (err) { return String((err && err.message) || err); });
     });
-    return Promise.all(sends).then(function (ok) {
-      if (ok.indexOf(true) === -1) throw new Error("Falha no envio");
+    return Promise.all(sends).then(function (errors) {
+      var failed = errors.filter(Boolean);
+      if (failed.length === errors.length) throw new Error(failed[0]);
     });
   }
 
@@ -719,10 +722,11 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         msg.className = "meet-msg ok";
         msg.innerHTML = "<strong>Pedido recebido!</strong> Nossa equipe entrará em contato pelo e-mail <strong>" + esc(lead.email) + "</strong> para agendar a reunião.";
         msg.hidden = false;
-      }).catch(function () {
+      }).catch(function (err) {
         btn.disabled = false; btn.textContent = "Agendar uma reunião com a equipe";
         msg.className = "meet-msg err";
-        msg.textContent = "Não conseguimos enviar o seu pedido agora. Verifique a sua conexão e tente novamente.";
+        msg.innerHTML = "Não conseguimos enviar o seu pedido agora. Verifique a sua conexão e tente novamente." +
+          '<small class="err-detail">Detalhe técnico: ' + esc((err && err.message) || "desconhecido") + "</small>";
         msg.hidden = false;
       });
     });
