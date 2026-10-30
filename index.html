@@ -516,15 +516,9 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
   $("next").addEventListener("click", next);
   $("back").addEventListener("click", function () { if (step > 0) { step--; renderStep(); } });
 
-  // ---------- Cadastro (nome, e-mail e WhatsApp; seguem por e-mail via Web3Forms junto com o resumo, ao fim do questionário) ----------
-  var LEAD_ENDPOINT = "https://api.web3forms.com/submit";
-  // Uma chave por destinatário (o plano gratuito entrega cada chave em um único endereço).
-  var WEB3FORMS_KEYS = [
-    "49817469-6aa5-479c-adf7-1fb39715796d", // bdeluiz@venturalaw.com.br
-    "9ce12795-7ecb-4e2a-b099-2ff4f90d7b7d", // contato@venturalaw.com.br
-    "ebf534c0-5b4c-4d79-8e9c-4535f51d7d71", // mdutra@venturalaw.com.br
-    "687916cd-d4cf-4e77-b8c6-189cf16624e0"  // tributario@venturalaw.com.br
-  ];
+  // ---------- Cadastro (nome, e-mail e WhatsApp; seguem com o resumo, ao fim do questionário) ----------
+  // App da Web do Google Apps Script (apps-script-radar.gs): grava na planilha e envia o e-mail para a equipe.
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkVrRn2CfBSzxcD6_yUBY2Cf7PMblmMr3W7nKPtMkt8bgVekKCCJLB0lEPxusNzP6n_A/exec";
   var lead = { nome: "", email: "", whatsapp: "" };
 
   function formatPhone(v) {
@@ -545,87 +539,45 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     }
   } catch (err) {}
 
+  function now() {
+    return new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  }
+
   // Enviado uma vez por diagnóstico concluído: dados do cadastro + resumo das respostas.
   function sendSummary(direct) {
-    var data = {
-      Nome: lead.nome,
-      "E-mail": lead.email,
-      "WhatsApp": lead.whatsapp
-    };
+    var campos = [["Data e hora", now()], ["Nome", lead.nome], ["E-mail", lead.email], ["WhatsApp", lead.whatsapp]];
     QUESTIONS.forEach(function (q, i) {
       var o = optOf(q, answers[q.id]);
-      data[(i + 1) + ". " + q.title] = o ? o.t : "";
+      campos.push([(i + 1) + ". " + q.title, o ? o.t : ""]);
     });
-    data["Resultado indicado"] = direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados";
-    data["Data e hora"] = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
-    data.subject = "Radar da Reforma Tributária: " + lead.nome + " (" + (direct ? "mentoria" : "parceria") + ")";
-    data.from_name = "Radar da Reforma Tributária";
-    data.replyto = lead.email;
-    postForm(data).catch(function () {});
+    campos.push(["Resultado indicado", direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados"]);
+    postForm("resumo", "Radar da Reforma Tributária: " + lead.nome + " (" + (direct ? "mentoria" : "parceria") + ")", campos)
+      .catch(function () {});
   }
 
   // Pedido de reunião: avisa a equipe com os dados do cadastro, sem abrir o e-mail do visitante.
   function requestMeeting(direct) {
-    return postForm({
-      subject: "Pedido de reunião: " + lead.nome + " (" + (direct ? "mentoria TaxNowBR Club" : "parceria com o Ventura Advogados") + ")",
-      from_name: "Radar da Reforma Tributária",
-      replyto: lead.email,
-      "Pedido": "Quer agendar uma reunião com a equipe",
-      "Interesse": direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados",
-      Nome: lead.nome,
-      "E-mail": lead.email,
-      "WhatsApp": lead.whatsapp,
-      "Data e hora": new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
-    });
+    var interesse = direct ? "Mentoria TaxNowBR Club" : "Parceria com o Ventura Advogados";
+    return postForm("reuniao", "Pedido de reunião: " + lead.nome + " (" + interesse + ")", [
+      ["Data e hora", now()],
+      ["Nome", lead.nome],
+      ["E-mail", lead.email],
+      ["WhatsApp", lead.whatsapp],
+      ["Interesse", interesse]
+    ]);
   }
 
-  // Envia o mesmo conteúdo para cada chave; dá certo se ao menos um destinatário recebeu.
-  function postForm(data) {
+  // Envio como formulário simples (sem JSON nem cabeçalhos extras), que o navegador manda sem checagem prévia.
+  function postForm(tipo, subject, campos) {
     if ($("lead-hp").value) return Promise.resolve(); // campo-isca preenchido: robô, não envia
-    var sends = WEB3FORMS_KEYS.map(function (key) { return postOne(key, data); });
-    return Promise.all(sends).then(function (results) {
-      if (results.indexOf(true) === -1) throw new Error("o servidor de envio não respondeu");
-    });
-  }
-
-  // Envio por formulário HTML comum num iframe oculto, o método padrão do Web3Forms.
-  // Não depende de CORS (que o Safari do iPhone barrava com "Load failed"). Depois de
-  // registrar o envio, o Web3Forms redireciona o iframe para obrigado.html, que avisa esta página.
-  var sendSeq = 0;
-  function postOne(key, data) {
-    return new Promise(function (resolve) {
-      var id = "envio-" + (++sendSeq) + "-" + Date.now();
-      var frame = document.createElement("iframe");
-      frame.name = id; frame.title = "Envio"; frame.hidden = true;
-      var form = document.createElement("form");
-      form.method = "POST"; form.action = LEAD_ENDPOINT; form.target = id; form.hidden = true;
-      function add(name, value) {
-        var input = document.createElement("input");
-        input.type = "hidden"; input.name = name; input.value = value;
-        form.appendChild(input);
-      }
-      add("access_key", key);
-      add("redirect", location.origin + "/obrigado.html?id=" + id);
-      Object.keys(data).forEach(function (k) { add(k, data[k]); });
-
-      var done = false;
-      var timer = setTimeout(function () { finish(false); }, 25000);
-      function onMessage(e) {
-        if (e.origin === location.origin && e.data && e.data.radarSent === id) finish(true);
-      }
-      function finish(ok) {
-        if (done) return;
-        done = true;
-        clearTimeout(timer);
-        window.removeEventListener("message", onMessage);
-        setTimeout(function () { frame.remove(); form.remove(); }, 1000);
-        resolve(ok);
-      }
-      window.addEventListener("message", onMessage);
-      document.body.appendChild(frame);
-      document.body.appendChild(form);
-      form.submit();
-    });
+    var body = new URLSearchParams();
+    body.append("tipo", tipo);
+    body.append("subject", subject);
+    body.append("replyto", lead.email);
+    body.append("campos", JSON.stringify(campos));
+    return fetch(SCRIPT_URL, { method: "POST", body: body })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { if (!res.ok) throw new Error(res.erro || "falha no envio"); });
   }
 
   $("lead-form").addEventListener("submit", function (e) {
@@ -751,7 +703,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         btn.disabled = false; btn.textContent = "Agendar uma reunião com a equipe";
         msg.className = "meet-msg err";
         msg.innerHTML = "Não conseguimos enviar o seu pedido agora. Verifique a sua conexão e tente novamente." +
-          '<small class="err-detail">Detalhe técnico (v3): ' + esc((err && err.message) || "desconhecido") + "</small>";
+          '<small class="err-detail">Detalhe técnico (v4): ' + esc((err && err.message) || "desconhecido") + "</small>";
         msg.hidden = false;
       });
     });
