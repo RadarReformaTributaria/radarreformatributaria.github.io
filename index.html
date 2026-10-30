@@ -751,7 +751,7 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
         btn.disabled = false; btn.textContent = "Agendar uma reunião com a equipe";
         msg.className = "meet-msg err";
         msg.innerHTML = "Não conseguimos enviar o seu pedido agora. Verifique a sua conexão e tente novamente." +
-          '<small class="err-detail">Detalhe técnico: ' + esc((err && err.message) || "desconhecido") + "</small>";
+          '<small class="err-detail">Detalhe técnico (v3): ' + esc((err && err.message) || "desconhecido") + "</small>";
         msg.hidden = false;
       });
     });
