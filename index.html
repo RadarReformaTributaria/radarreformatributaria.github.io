@@ -561,7 +561,6 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
     data.subject = "Radar da Reforma Tributária: " + lead.nome + " (" + (direct ? "mentoria" : "parceria") + ")";
     data.from_name = "Radar da Reforma Tributária";
     data.replyto = lead.email;
-    data.botcheck = $("lead-hp").value;
     postForm(data).catch(function () {});
   }
 
@@ -576,30 +575,56 @@ h3 { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02e
       Nome: lead.nome,
       "E-mail": lead.email,
       "WhatsApp": lead.whatsapp,
-      "Data e hora": new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
-      botcheck: $("lead-hp").value
+      "Data e hora": new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
     });
   }
 
   // Envia o mesmo conteúdo para cada chave; dá certo se ao menos um destinatário recebeu.
   function postForm(data) {
-    var sends = WEB3FORMS_KEYS.map(function (key) {
-      // Envio como formulário comum (sem JSON nem keepalive): o Safari do iPhone bloqueia a outra forma.
-      var body = new FormData();
-      body.append("access_key", key);
-      Object.keys(data).forEach(function (k) { body.append(k, data[k]); });
-      return fetch(LEAD_ENDPOINT, {
-        method: "POST",
-        headers: { "Accept": "application/json" },
-        body: body
-      }).then(function (r) { return r.json(); }).then(function (res) {
-        if (!res.success) throw new Error(res.message || "Falha no envio");
-        return "";
-      }).catch(function (err) { return String((err && err.message) || err); });
+    if ($("lead-hp").value) return Promise.resolve(); // campo-isca preenchido: robô, não envia
+    var sends = WEB3FORMS_KEYS.map(function (key) { return postOne(key, data); });
+    return Promise.all(sends).then(function (results) {
+      if (results.indexOf(true) === -1) throw new Error("o servidor de envio não respondeu");
     });
-    return Promise.all(sends).then(function (errors) {
-      var failed = errors.filter(Boolean);
-      if (failed.length === errors.length) throw new Error(failed[0]);
+  }
+
+  // Envio por formulário HTML comum num iframe oculto, o método padrão do Web3Forms.
+  // Não depende de CORS (que o Safari do iPhone barrava com "Load failed"). Depois de
+  // registrar o envio, o Web3Forms redireciona o iframe para obrigado.html, que avisa esta página.
+  var sendSeq = 0;
+  function postOne(key, data) {
+    return new Promise(function (resolve) {
+      var id = "envio-" + (++sendSeq) + "-" + Date.now();
+      var frame = document.createElement("iframe");
+      frame.name = id; frame.title = "Envio"; frame.hidden = true;
+      var form = document.createElement("form");
+      form.method = "POST"; form.action = LEAD_ENDPOINT; form.target = id; form.hidden = true;
+      function add(name, value) {
+        var input = document.createElement("input");
+        input.type = "hidden"; input.name = name; input.value = value;
+        form.appendChild(input);
+      }
+      add("access_key", key);
+      add("redirect", location.origin + "/obrigado.html?id=" + id);
+      Object.keys(data).forEach(function (k) { add(k, data[k]); });
+
+      var done = false;
+      var timer = setTimeout(function () { finish(false); }, 25000);
+      function onMessage(e) {
+        if (e.origin === location.origin && e.data && e.data.radarSent === id) finish(true);
+      }
+      function finish(ok) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        window.removeEventListener("message", onMessage);
+        setTimeout(function () { frame.remove(); form.remove(); }, 1000);
+        resolve(ok);
+      }
+      window.addEventListener("message", onMessage);
+      document.body.appendChild(frame);
+      document.body.appendChild(form);
+      form.submit();
     });
   }
 
